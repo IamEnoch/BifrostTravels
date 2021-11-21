@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using BifrostTravels.Helpers;
 using BifrostTravels.Models;
 using Newtonsoft.Json;
+using ConsoleTables;
 
 
 namespace BifrostTravels
@@ -37,8 +38,8 @@ namespace BifrostTravels
 
             //A list of slices where we can house multiple slices
             //Payload only accepts a list of slices
-            var slices = new List<Slice>();
-            var slice1 = new Slice
+            var slices = new List<OfferRequestSlice>();
+            var slice1 = new OfferRequestSlice
             {
                 DepartureDate = departureDate,
                 Origin = origin,
@@ -46,7 +47,7 @@ namespace BifrostTravels
             };
             slices.Add(slice1);
 
-            var data = new Data
+            var data = new OffersRequestData
             {
                 Slices = slices,
                 Passengers = passengers,
@@ -56,8 +57,18 @@ namespace BifrostTravels
 
             var result = await DataHelper.PostItemAsync("offer_requests", payload);
             Console.WriteLine();
+
             Console.ForegroundColor = result.IsSuccessful ? ConsoleColor.Green : ConsoleColor.Red;
-            Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented));
+
+            var objectString = JsonConvert.SerializeObject(result.ReturnObj);
+            var OfferResponseObject = JsonConvert.DeserializeObject<SeriesOfOffers>(objectString);
+
+            var table = new ConsoleTable("Number of slices", "livemode");
+            table.AddRow(OfferResponseObject.Data.Slices.Count, OfferResponseObject.Data.LiveMode);
+
+            table.Write();
+
+            //Console.WriteLine(JsonConvert.SerializeObject(result.ReturnObj, Formatting.Indented));
             Console.ForegroundColor = ConsoleColor.White;
         }
         
@@ -79,7 +90,7 @@ namespace BifrostTravels
         }
 
         /// <summary>
-        /// Method thet gets teh destination
+        /// Method thet gets the destination
         /// </summary>
         /// <returns></returns>
         public static string GetDestination()
@@ -96,7 +107,7 @@ namespace BifrostTravels
         }
 
         /// <summary>
-        /// Method the obtains the departure date from the user
+        /// Method that obtains the departure date from the user
         /// </summary>
         /// <returns></returns>
         public static DateTime GetDepartureDate()
@@ -130,15 +141,15 @@ namespace BifrostTravels
         /// Method gets the number of passengers and their specififed types
         /// </summary>
         /// <returns></returns>
-        public static List<Passenger> GetPassengers()
+        public static List<OfferRequestPassenger> GetPassengers()
         {
-            var passengers = new List<Passenger>();
+            var passengers = new List<OfferRequestPassenger>();
 
             Console.WriteLine("How many adults are travelling");
             var adults = Convert.ToInt32(Console.ReadLine());
             for(int i = 0; i < adults; i++)
             {
-                var passenger = new Passenger()
+                var passenger = new OfferRequestPassenger()
                 {
                     Type = PassengerType.adult.ToString()
                 };
@@ -149,7 +160,7 @@ namespace BifrostTravels
             var children = Convert.ToInt32(Console.ReadLine());
             for (int i = 0; i < children; i++)
             {
-                var passenger = new Passenger()
+                var passenger = new OfferRequestPassenger()
                 {
                     Type = PassengerType.child.ToString()
                 };
@@ -160,7 +171,7 @@ namespace BifrostTravels
             var infants = Convert.ToInt32(Console.ReadLine());
             for (int i = 0; i < infants; i++)
             {
-                var passenger = new Passenger()
+                var passenger = new OfferRequestPassenger()
                 {
                     Type = PassengerType.infant_without_seat.ToString()
                 };
@@ -170,7 +181,7 @@ namespace BifrostTravels
         }
 
         /// <summary>
-        /// Method gets the preffered cabin class of the offer being created
+        /// Method gets the preferred cabin class of the offer being created
         /// </summary>
         public static string GetCabinClass()
         {            

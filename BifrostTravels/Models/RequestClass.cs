@@ -10,28 +10,28 @@ namespace BifrostTravels.Models
     public class OfferRequestPayload
     {
         [JsonProperty("data")]
-        public Data Data { get; set; }
+        public OffersRequestData Data { get; set; }
     }
 
-    public class Data
+    public class OffersRequestData
     {
         [JsonProperty("slices")]
-        public List<Slice> Slices { get; set; }
+        public List<OfferRequestSlice> Slices { get; set; }
 
         [JsonProperty("passengers")]
-        public List<Passenger> Passengers { get; set; }
+        public List<OfferRequestPassenger> Passengers { get; set; }
 
         [JsonProperty("cabin_class")]
         public string CabinClass { get; set; }
     }
 
-    public class Passenger
+    public class OfferRequestPassenger
     {
         [JsonProperty("type")]
         public string Type { get; set; }
     }
 
-    public class Slice
+    public class OfferRequestSlice
     {
         [JsonProperty("origin")]
         public string Origin { get; set; }
