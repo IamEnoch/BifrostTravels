@@ -22,30 +22,89 @@ namespace BifrostTravels
 
             DataHelper = new HttpDataHelper("https://api.duffel.com/air/", "duffel_test_bQFowLbLyIEq-1xdZUKxOibMlO9xMFs5Us5NTK-l-SY", headers);
 
-            Console.WriteLine("Enter the city of origin");
-            var origin = GetOrigin();
-
-            Console.WriteLine("Enter the city of destination");
-            var destination = GetDestination();
-
-            Console.WriteLine("Enter the date of departure");
-            var departureDate = GetDepartureDate();
-
-            Console.WriteLine("Enter the cabin class");
-            var cabinclass = GetCabinClass();
-
-            var passengers = GetPassengers();
-
             //A list of slices where we can house multiple slices
             //Payload only accepts a list of slices
             var slices = new List<OfferRequestSlice>();
-            var slice1 = new OfferRequestSlice
+
+            Console.WriteLine("Enter the journey mode. \n1.oneway \n2.returnflight \n3.multi_city");
+            var journeyMode = GetJourneyMode();
+
+            Console.WriteLine("Enter the city of origin");
+            var origin = GetOrigin();
+
+            if (journeyMode == JourneyMode.oneway.ToString())
             {
-                DepartureDate = departureDate,
-                Origin = origin,
-                Destination = destination
-            };
-            slices.Add(slice1);
+                Console.WriteLine("Enter the city of destination");
+                var destination = GetDestination();
+
+                Console.WriteLine("Enter the date of departure");
+                var departureDate = GetDepartureDate();
+
+                var slice = new OfferRequestSlice
+                {
+                    DepartureDate = departureDate,
+                    Origin = origin,
+                    Destination = destination
+                };
+                slices.Add(slice);
+            }
+
+            else if (journeyMode == JourneyMode.returnflight.ToString()) 
+            {
+                Console.WriteLine("Enter the city of destination");
+                var destination = GetDestination();
+
+                Console.WriteLine("Enter the date of departure");
+                var departureDate = GetDepartureDate();
+
+                Console.WriteLine("Enter the return date");
+                var returnDate = GetDepartureDate();
+
+                var slice1 = new OfferRequestSlice
+                {
+                    DepartureDate = departureDate,
+                    Origin = origin,
+                    Destination = destination
+                };
+                var slice2 = new OfferRequestSlice
+                {
+                    DepartureDate = returnDate,
+                    Origin = destination,
+                    Destination = origin
+                };
+                slices.Add(slice1);
+                slices.Add(slice2);
+            }
+            else
+            {
+                Console.WriteLine("Enter the number of destined cities you wish to have");
+                var numberOfCities = Convert.ToInt32(Console.ReadLine());
+
+                for (int i = 0; i < numberOfCities; i++)
+                {
+                    Console.WriteLine("Enter the city of destination");
+                    var destination = GetDestination();
+
+                    Console.WriteLine("Enter the date of departure");
+                    var departureDate = GetDepartureDate();
+
+                    var slice = new OfferRequestSlice
+                    {
+                        DepartureDate = departureDate,
+                        Origin = origin,
+                        Destination = destination
+                    };
+
+                    slices.Add(slice);
+
+                    origin = destination;
+                }
+            }
+
+            Console.WriteLine("Enter the cabin class. \n1.first \n2.business \n3.premium_economy \n4.economy");
+            var cabinclass = GetCabinClass();
+
+            var passengers = GetPassengers();
 
             var data = new OffersRequestData
             {
@@ -63,13 +122,28 @@ namespace BifrostTravels
             var objectString = JsonConvert.SerializeObject(result.ReturnObj);
             var OfferResponseObject = JsonConvert.DeserializeObject<SeriesOfOffers>(objectString);
 
-            var table = new ConsoleTable("Number of slices", "livemode");
+
+            if (OfferResponseObject.Data.Slices.Count == 1)
+            {
+                Console.WriteLine("This is a one way flight");
+            }
+            else if(OfferResponseObject.Data.Slices.Count == 2)
+            {
+                Console.WriteLine("This is a return flight");
+            }
+            else
+            {
+                Console.WriteLine("This is a multi city flight");
+            }
+
+            var table = new ConsoleTable("Number of slices", "Livemode");
             table.AddRow(OfferResponseObject.Data.Slices.Count, OfferResponseObject.Data.LiveMode);
 
             table.Write();
 
             //Console.WriteLine(JsonConvert.SerializeObject(result.ReturnObj, Formatting.Indented));
             Console.ForegroundColor = ConsoleColor.White;
+
         }
         
         /// <summary>
@@ -138,7 +212,7 @@ namespace BifrostTravels
         }
 
         /// <summary>
-        /// Method gets the number of passengers and their specififed types
+        /// Method gets the number of passengers and their specified types
         /// </summary>
         /// <returns></returns>
         public static List<OfferRequestPassenger> GetPassengers()
@@ -185,7 +259,7 @@ namespace BifrostTravels
         /// </summary>
         public static string GetCabinClass()
         {            
-            Console.WriteLine("Enter the cabin class. \n1.first \n2.business \n3.premium_economy \n4.economy");
+            
             var cabinclassInput = Console.ReadLine();
 
             var cabinClass = CabinClass.economy;
@@ -209,6 +283,37 @@ namespace BifrostTravels
             }
             return cabinClass.ToString();
             
+        }
+
+        /// <summary>
+        /// Method that gets the journey mode of a particular offer request
+        /// </summary>
+        /// <returns></returns>
+        public static string GetJourneyMode()
+        {
+            var journeyModeInput = Console.ReadLine();
+
+            var journeyMode = JourneyMode.oneway;
+
+            try
+            {
+                if (string.IsNullOrEmpty(journeyModeInput))
+                {
+                    Console.WriteLine("Invalid entry!! Enter the journey mode. \n1.oneway \n2.returnflight \n3.multi_city");
+                    GetJourneyMode();
+                }
+                else
+                {
+                    journeyMode = (JourneyMode)Enum.Parse(typeof(JourneyMode), journeyModeInput);
+                }
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Invalid entry!! Enter the journey mode. \n1.oneway \n2.returnflight \n3.multi_city");
+                GetJourneyMode();
+            }
+
+            return journeyMode.ToString();
         }
 
     }

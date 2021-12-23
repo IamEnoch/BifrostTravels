@@ -19,4 +19,11 @@ namespace BifrostTravels.Helpers
         premium_economy,
         economy
     }
+
+    enum JourneyMode
+    {
+        oneway,
+        returnflight,
+        multi_city
+    }
 }
