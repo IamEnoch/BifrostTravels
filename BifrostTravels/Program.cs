@@ -145,8 +145,10 @@ namespace BifrostTravels
                     {
                         var hours = Convert.ToInt32(XmlConvert.ToTimeSpan(t1.Duration).TotalHours);
                         var minutes = XmlConvert.ToTimeSpan(t1.Duration).Minutes;
+                        var departureTime = t1.DepartingAt;
+                        var arrivalTime = t1.ArrivingAt;
 
-                        offers.AddRow(t1.Origin.IataCityCode, t1.Destination.IataCityCode,
+                        offers.AddRow(t1.Origin.IataCityCode + "" + departureTime, t1.Destination.IataCityCode + "" + arrivalTime,
                             hours + "H " + minutes + "M", t1.OperatingCarrier.Name);
                     }
                 }
