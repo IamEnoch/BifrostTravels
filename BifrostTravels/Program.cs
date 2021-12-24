@@ -148,7 +148,7 @@ namespace BifrostTravels
                         var departureTime = t1.DepartingAt;
                         var arrivalTime = t1.ArrivingAt;
 
-                        offers.AddRow(t1.Origin.IataCityCode + "" + departureTime, t1.Destination.IataCityCode + "" + arrivalTime,
+                        offers.AddRow(t1.Origin.IataCityCode + " " + departureTime, t1.Destination.IataCityCode + " " + arrivalTime,
                             hours + "H " + minutes + "M", t1.OperatingCarrier.Name);
                     }
                 }
@@ -232,7 +232,7 @@ namespace BifrostTravels
         {
             var passengers = new List<OfferRequestPassenger>();
 
-            Console.WriteLine("How many adults are travelling");
+            Console.WriteLine("How many adults are traveling");
             var adults = Convert.ToInt32(Console.ReadLine());
             for(int i = 0; i < adults; i++)
             {
@@ -243,7 +243,7 @@ namespace BifrostTravels
                 passengers.Add(passenger);
             }
 
-            Console.WriteLine("How many children are travelling");
+            Console.WriteLine("How many children are traveling");
             var children = Convert.ToInt32(Console.ReadLine());
             for (int i = 0; i < children; i++)
             {
