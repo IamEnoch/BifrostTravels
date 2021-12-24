@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Xml;
 using BifrostTravels.Helpers;
 using BifrostTravels.Models;
 using Newtonsoft.Json;
@@ -29,11 +30,11 @@ namespace BifrostTravels
             Console.WriteLine("Enter the journey mode. \n1.oneway \n2.returnflight \n3.multi_city");
             var journeyMode = GetJourneyMode();
 
-            Console.WriteLine("Enter the city of origin");
-            var origin = GetOrigin();
-
             if (journeyMode == JourneyMode.oneway.ToString())
             {
+                Console.WriteLine("Enter the city of origin");
+                var origin = GetOrigin();
+
                 Console.WriteLine("Enter the city of destination");
                 var destination = GetDestination();
 
@@ -51,6 +52,9 @@ namespace BifrostTravels
 
             else if (journeyMode == JourneyMode.returnflight.ToString()) 
             {
+                Console.WriteLine("Enter the city of origin");
+                var origin = GetOrigin();
+
                 Console.WriteLine("Enter the city of destination");
                 var destination = GetDestination();
 
@@ -77,11 +81,14 @@ namespace BifrostTravels
             }
             else
             {
-                Console.WriteLine("Enter the number of destined cities you wish to have");
-                var numberOfCities = Convert.ToInt32(Console.ReadLine());
+                Console.WriteLine("Enter the number of flights you wish to book flights for");
+                var numberOfFlights = Convert.ToInt32(Console.ReadLine());
 
-                for (int i = 0; i < numberOfCities; i++)
+                for (int i = 0; i < numberOfFlights; i++)
                 {
+                    Console.WriteLine("Enter the city of origin");
+                    var origin = GetOrigin();
+
                     Console.WriteLine("Enter the city of destination");
                     var destination = GetDestination();
 
@@ -96,13 +103,11 @@ namespace BifrostTravels
                     };
 
                     slices.Add(slice);
-
-                    origin = destination;
                 }
             }
 
             Console.WriteLine("Enter the cabin class. \n1.first \n2.business \n3.premium_economy \n4.economy");
-            var cabinclass = GetCabinClass();
+            var cabinClass = GetCabinClass();
 
             var passengers = GetPassengers();
 
@@ -110,7 +115,7 @@ namespace BifrostTravels
             {
                 Slices = slices,
                 Passengers = passengers,
-                CabinClass = cabinclass
+                CabinClass = cabinClass
             };
             OfferRequestPayload payload = new OfferRequestPayload { Data = data };
 
@@ -120,27 +125,33 @@ namespace BifrostTravels
             Console.ForegroundColor = result.IsSuccessful ? ConsoleColor.Green : ConsoleColor.Red;
 
             var objectString = JsonConvert.SerializeObject(result.ReturnObj);
-            var OfferResponseObject = JsonConvert.DeserializeObject<SeriesOfOffers>(objectString);
+            var offerResponseObject = JsonConvert.DeserializeObject<SeriesOfOffers>(objectString);
 
+            
+            var vitals = new ConsoleTable("Journey Mode", "Date of departure", "Number of passengers", "Cabin class");
+            vitals.AddRow(journeyMode, offerResponseObject.Data.Slices[0].DepartureDate, offerResponseObject.Data.Passengers.Count,offerResponseObject.Data.CabinClass);
+            vitals.Write();
 
-            if (OfferResponseObject.Data.Slices.Count == 1)
+            //Iterate through the offers
+            for (int i = 0; i < offerResponseObject.Data.Offers.Count; i++)
             {
-                Console.WriteLine("This is a one way flight");
-            }
-            else if(OfferResponseObject.Data.Slices.Count == 2)
-            {
-                Console.WriteLine("This is a return flight");
-            }
-            else
-            {
-                Console.WriteLine("This is a multi city flight");
-            }
+                Console.WriteLine($"Offer number {i + 1}\nPrice: {offerResponseObject.Data.Offers[i].TotalAmount}");
+                var offers = new ConsoleTable("Origin", "Destination", "Flight duration", "Operating Carrier");
 
-            var table = new ConsoleTable("Number of slices", "Livemode");
-            table.AddRow(OfferResponseObject.Data.Slices.Count, OfferResponseObject.Data.LiveMode);
+                //Iterate through the slices
+                foreach (var t in offerResponseObject.Data.Offers[i].Slices)
+                {
+                    foreach (var t1 in t.Segments)
+                    {
+                        var hours = Convert.ToInt32(XmlConvert.ToTimeSpan(t1.Duration).TotalHours);
+                        var minutes = XmlConvert.ToTimeSpan(t1.Duration).Minutes;
 
-            table.Write();
-
+                        offers.AddRow(t1.Origin.IataCityCode, t1.Destination.IataCityCode,
+                            hours + "H " + minutes + "M", t1.OperatingCarrier.Name);
+                    }
+                }
+                offers.Write();
+            }
             //Console.WriteLine(JsonConvert.SerializeObject(result.ReturnObj, Formatting.Indented));
             Console.ForegroundColor = ConsoleColor.White;
 
@@ -260,20 +271,20 @@ namespace BifrostTravels
         public static string GetCabinClass()
         {            
             
-            var cabinclassInput = Console.ReadLine();
+            var cabinClassInput = Console.ReadLine();
 
             var cabinClass = CabinClass.economy;
 
             try
             {
-                if (string.IsNullOrEmpty(cabinclassInput))
+                if (string.IsNullOrEmpty(cabinClassInput))
                 {
                     Console.WriteLine("Invalid entry!! Enter the cabin class. \n1.first \n2.business \n3.premium_economy \n4.economy");
                     GetCabinClass();
                 }
                 else
                 {
-                    cabinClass = (CabinClass)Enum.Parse(typeof(CabinClass), cabinclassInput);
+                    cabinClass = (CabinClass)Enum.Parse(typeof(CabinClass), cabinClassInput);
                 }
             }
             catch (Exception)
