@@ -1,15 +1,15 @@
 ﻿using Newtonsoft.Json;
-using System;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace BifrostTravels.Models
 {
-    public class OfferRequestPayload
+    public class OfferResponseBody
     {
         [JsonProperty("data")]
-        public OffersRequestData Data { get; set; }
+        public OfferResponseData Data { get; set; }
     }
+    
 }
 

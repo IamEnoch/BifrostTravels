@@ -25,7 +25,7 @@ namespace BifrostTravels
 
             //A list of slices where we can house multiple slices
             //Payload only accepts a list of slices
-            var slices = new List<OfferRequestSlice>();
+            var slices = new List<Slice>();
 
             Console.WriteLine("Enter the journey mode. \n1.oneway \n2.returnflight \n3.multi_city");
             var journeyMode = GetJourneyMode();
@@ -41,7 +41,7 @@ namespace BifrostTravels
                 Console.WriteLine("Enter the date of departure");
                 var departureDate = GetDepartureDate();
 
-                var slice = new OfferRequestSlice
+                var slice = new Slice
                 {
                     DepartureDate = departureDate,
                     Origin = origin,
@@ -64,13 +64,13 @@ namespace BifrostTravels
                 Console.WriteLine("Enter the return date");
                 var returnDate = GetDepartureDate();
 
-                var slice1 = new OfferRequestSlice
+                var slice1 = new Slice()
                 {
                     DepartureDate = departureDate,
                     Origin = origin,
                     Destination = destination
                 };
-                var slice2 = new OfferRequestSlice
+                var slice2 = new Slice()
                 {
                     DepartureDate = returnDate,
                     Origin = destination,
@@ -95,7 +95,7 @@ namespace BifrostTravels
                     Console.WriteLine("Enter the date of departure");
                     var departureDate = GetDepartureDate();
 
-                    var slice = new OfferRequestSlice
+                    var slice = new Slice()
                     {
                         DepartureDate = departureDate,
                         Origin = origin,
@@ -125,7 +125,7 @@ namespace BifrostTravels
             Console.ForegroundColor = result.IsSuccessful ? ConsoleColor.Green : ConsoleColor.Red;
 
             var objectString = JsonConvert.SerializeObject(result.ReturnObj);
-            var offerResponseObject = JsonConvert.DeserializeObject<SeriesOfOffers>(objectString);
+            var offerResponseObject = JsonConvert.DeserializeObject<OfferResponseBody>(objectString);
 
             
             var vitals = new ConsoleTable("Journey Mode", "Date of departure", "Number of passengers", "Cabin class");
@@ -137,23 +137,33 @@ namespace BifrostTravels
             {
                 Console.WriteLine($"Offer number {i + 1}\nPrice: {offerResponseObject.Data.Offers[i].TotalAmount}");
                 var offers = new ConsoleTable("Origin", "Destination", "Flight duration", "Operating Carrier");
+                var layOver = new ConsoleTable("Layover");
 
                 //Iterate through the slices
                 foreach (var t in offerResponseObject.Data.Offers[i].Slices)
                 {
-                    foreach (var t1 in t.Segments)
+                    for (var j = 0; j < t.Segments.Count; j++)
                     {
-                        var hours = Convert.ToInt32(XmlConvert.ToTimeSpan(t1.Duration).TotalHours);
+                        var t1 = t.Segments[j];
+                        var hours = Convert.ToInt32(XmlConvert.ToTimeSpan(t1.Duration).Hours);
                         var minutes = XmlConvert.ToTimeSpan(t1.Duration).Minutes;
                         var departureTime = t1.DepartingAt;
                         var arrivalTime = t1.ArrivingAt;
 
-                        offers.AddRow(t1.Origin.IataCityCode + " " + departureTime, t1.Destination.IataCityCode + " " + arrivalTime,
+                        offers.AddRow(t1.Origin.IataCityCode + " " + departureTime,
+                            t1.Destination.IataCityCode + " " + arrivalTime,
                             hours + "H " + minutes + "M", t1.OperatingCarrier.Name);
+
+                        if (t.Segments.Count >= 2 && j < t.Segments.Count - 1) 
+                        {
+                            layOver.AddRow(t.Segments[j].Destination.IataCode + " " + (t.Segments[j + 1].DepartingAt - t.Segments[j].ArrivingAt));
+                        }
                     }
                 }
                 offers.Write();
+                layOver.Write();
             }
+
             //Console.WriteLine(JsonConvert.SerializeObject(result.ReturnObj, Formatting.Indented));
             Console.ForegroundColor = ConsoleColor.White;
 
@@ -228,15 +238,15 @@ namespace BifrostTravels
         /// Method gets the number of passengers and their specified types
         /// </summary>
         /// <returns></returns>
-        public static List<OfferRequestPassenger> GetPassengers()
+        public static List<Passenger> GetPassengers()
         {
-            var passengers = new List<OfferRequestPassenger>();
+            var passengers = new List<Passenger>();
 
             Console.WriteLine("How many adults are traveling");
             var adults = Convert.ToInt32(Console.ReadLine());
             for(int i = 0; i < adults; i++)
             {
-                var passenger = new OfferRequestPassenger()
+                var passenger = new Passenger()
                 {
                     Type = PassengerType.adult.ToString()
                 };
@@ -247,7 +257,7 @@ namespace BifrostTravels
             var children = Convert.ToInt32(Console.ReadLine());
             for (int i = 0; i < children; i++)
             {
-                var passenger = new OfferRequestPassenger()
+                var passenger = new Passenger()
                 {
                     Type = PassengerType.child.ToString()
                 };
@@ -258,7 +268,7 @@ namespace BifrostTravels
             var infants = Convert.ToInt32(Console.ReadLine());
             for (int i = 0; i < infants; i++)
             {
-                var passenger = new OfferRequestPassenger()
+                var passenger = new Passenger()
                 {
                     Type = PassengerType.infant_without_seat.ToString()
                 };
