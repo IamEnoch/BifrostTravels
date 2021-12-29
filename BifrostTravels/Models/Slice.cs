@@ -4,6 +4,9 @@ using Newtonsoft.Json;
 
 namespace BifrostTravels.Models
 {
+    /// <summary>
+    /// Base class for all the slices
+    /// </summary>
     public class Slice
     {
         [JsonProperty("origin_type")]
@@ -36,10 +39,10 @@ namespace BifrostTravels.Models
     public class ResponseOfferSlice : Slice
     {
         [JsonProperty("origin")]
-        public string Origin { get; set; }
+        public Origin Origin { get; set; }
 
         [JsonProperty("destination")]
-        public string Destination { get; set; }
+        public Destination Destination { get; set; }
     }
     /// <summary>
     /// Slice for a particular offer
