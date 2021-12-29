@@ -125,7 +125,7 @@ namespace BifrostTravels
             Console.ForegroundColor = result.IsSuccessful ? ConsoleColor.Green : ConsoleColor.Red;
 
             var objectString = JsonConvert.SerializeObject(result.ReturnObj);
-            var offerResponseObject = JsonConvert.DeserializeObject<OffersResponseBody>(objectString);
+            var offerResponseObject = JsonConvert.DeserializeObject<OfferResponseBody>(objectString);
 
             
             var vitals = new ConsoleTable("Journey Mode", "Date of departure", "Number of passengers", "Cabin class");
@@ -162,18 +162,24 @@ namespace BifrostTravels
                 }
                 offers.Write();
                 layOver.Write();
-
-
             }
-
             //Console.WriteLine(JsonConvert.SerializeObject(result.ReturnObj, Formatting.Indented));
             Console.ForegroundColor = ConsoleColor.White;
-       
+
+            Console.WriteLine("Enter the offer number that you wish to pick");
+            var offerNumber = GetOffer();
+            var offerId = offerResponseObject.Data.Offers[offerNumber].Id;
+            result = await DataHelper.GetItemAsync("offers/" + offerId);
+            Console.WriteLine();
+
+            Console.ForegroundColor = result.IsSuccessful ? ConsoleColor.Green : ConsoleColor.Red;
+
+            objectString = JsonConvert.SerializeObject(result.ReturnObj);
+            var offerDetailsResponseObject = JsonConvert.DeserializeObject<OfferDetailsBody>(objectString);
+
+            Console.WriteLine(offerDetailsResponseObject);
 
         }
-
-
-
 
         /// <summary>
         /// Get the city of origin
@@ -343,6 +349,35 @@ namespace BifrostTravels
             }
 
             return journeyMode.ToString();
+        }
+        /// <summary>
+        /// Method that gets the offer number
+        /// </summary>
+        /// <returns></returns>
+        public static int GetOffer()
+        {
+            var offerInput = Console.ReadLine();
+            int offer  = 1;
+
+            try
+            {
+                if (string.IsNullOrEmpty(offerInput))
+                {
+                    Console.WriteLine("Invalid entry!!! Enter the offer number that you wish to pick");
+                    GetOffer();
+                }
+                else
+                {
+                    offer = Convert.ToInt32(offerInput);
+                }
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Invalid entry!!! Enter the offer number that you wish to pick");
+                GetOffer();
+            }
+
+            return offer - 1;
         }
 
     }

@@ -61,6 +61,6 @@ namespace BifrostTravels.Models
         public string BaseAmount { get; set; }
 
         [JsonProperty("allowed_passenger_identity_document_types")]
-        public List<object> AllowedPassengerIdentityDocumentTypes { get; set; }
+        public List<string> AllowedPassengerIdentityDocumentTypes { get; set; }
     }
 }

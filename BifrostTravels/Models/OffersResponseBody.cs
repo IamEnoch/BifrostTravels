@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace BifrostTravels.Models
 {
-    public class OffersResponseBody
+    public class OfferResponseBody
     {
         [JsonProperty("data")]
         public OffersResponseData Data { get; set; }
