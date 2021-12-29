@@ -36,5 +36,11 @@ namespace BifrostTravels.Models
 
         [JsonProperty("age")]
         public int? Age { get; set; }
+
+        public Passenger()
+        {
+            LoyaltyProgrammeAccounts = new List<LoyaltyProgrammeAccount>();
+
+        }
     }
 }

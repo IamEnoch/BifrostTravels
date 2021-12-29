@@ -5,7 +5,7 @@ namespace BifrostTravels.Models
 {
     public class OffersRequestData
     {
-        [JsonProperty("slices")] public List<Slice> Slices { get; set; }
+        [JsonProperty("slices")] public List<RequestOfferSlice> Slices { get; set; }
 
         [JsonProperty("passengers")] public List<Passenger> Passengers { get; set; }
 

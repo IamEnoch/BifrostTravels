@@ -25,7 +25,7 @@ namespace BifrostTravels
 
             //A list of slices where we can house multiple slices
             //Payload only accepts a list of slices
-            var slices = new List<Slice>();
+            var slices = new List<RequestOfferSlice>();
 
             Console.WriteLine("Enter the journey mode. \n1.oneway \n2.returnflight \n3.multi_city");
             var journeyMode = GetJourneyMode();
@@ -41,7 +41,7 @@ namespace BifrostTravels
                 Console.WriteLine("Enter the date of departure");
                 var departureDate = GetDepartureDate();
 
-                var slice = new Slice
+                var slice = new RequestOfferSlice()
                 {
                     DepartureDate = departureDate,
                     Origin = origin,
@@ -64,13 +64,13 @@ namespace BifrostTravels
                 Console.WriteLine("Enter the return date");
                 var returnDate = GetDepartureDate();
 
-                var slice1 = new Slice()
+                var slice1 = new RequestOfferSlice()
                 {
                     DepartureDate = departureDate,
                     Origin = origin,
                     Destination = destination
                 };
-                var slice2 = new Slice()
+                var slice2 = new RequestOfferSlice()
                 {
                     DepartureDate = returnDate,
                     Origin = destination,
@@ -95,11 +95,11 @@ namespace BifrostTravels
                     Console.WriteLine("Enter the date of departure");
                     var departureDate = GetDepartureDate();
 
-                    var slice = new Slice()
+                    var slice = new RequestOfferSlice()
                     {
                         DepartureDate = departureDate,
-                        Origin = origin,
-                        Destination = destination
+                        Destination = destination,
+                        Origin = origin
                     };
 
                     slices.Add(slice);
@@ -125,7 +125,7 @@ namespace BifrostTravels
             Console.ForegroundColor = result.IsSuccessful ? ConsoleColor.Green : ConsoleColor.Red;
 
             var objectString = JsonConvert.SerializeObject(result.ReturnObj);
-            var offerResponseObject = JsonConvert.DeserializeObject<OfferResponseBody>(objectString);
+            var offerResponseObject = JsonConvert.DeserializeObject<OffersResponseBody>(objectString);
 
             
             var vitals = new ConsoleTable("Journey Mode", "Date of departure", "Number of passengers", "Cabin class");
@@ -162,13 +162,19 @@ namespace BifrostTravels
                 }
                 offers.Write();
                 layOver.Write();
+
+
             }
 
             //Console.WriteLine(JsonConvert.SerializeObject(result.ReturnObj, Formatting.Indented));
             Console.ForegroundColor = ConsoleColor.White;
+       
 
         }
-        
+
+
+
+
         /// <summary>
         /// Get the city of origin
         /// </summary>

@@ -42,6 +42,7 @@ namespace BifrostTravels.Models
         public City City { get; set; }
 
         [JsonProperty("airports")]
-        public List<Airports>? Airports { get; set; }
+        public List<Airports> Airports { get; set; }
+
     }
 }
